@@ -1,2 +1,2 @@
-# moussinesq_convection
+# moosinesq_convection
 Convection, in a moose.
