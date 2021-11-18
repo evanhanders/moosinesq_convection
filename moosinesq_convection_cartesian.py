@@ -22,11 +22,13 @@ logger = logging.getLogger(__name__)
 
 
 # Parameters
-Nphi, Nr = 512, 256
-Ra = 1e9
+Ra_str = '1e8'
+Nphi, Nr = 256, 128
+Ra = float(Ra_str)
+radius = 1
 Pr = 1
 dealias = 3/2
-stop_sim_time = 50
+stop_sim_time = 1e3
 timestepper = d3.SBDF2
 dtype = np.float64
 mask_tau = 1e1
@@ -34,7 +36,7 @@ initial_timestep = np.min((0.1, 1/mask_tau))
 max_timestep = initial_timestep
 
 data_dir = './' + sys.argv[0].split('.py')[0]
-data_dir += '_Ra{}_Pr{}_{}x{}/'.format(Ra, Pr, Nphi, Nr)
+data_dir += '_Ra{}_Pr{}_{}x{}/'.format(Ra_str, Pr, Nphi, Nr)
 
 if MPI.COMM_WORLD.rank == 0:
     if not os.path.exists('{:s}/'.format(data_dir)):
@@ -45,9 +47,11 @@ logger.info('saving run in {}'.format(data_dir))
 # Bases
 coords = d3.PolarCoordinates('phi', 'r')
 dist = d3.Distributor(coords, dtype=dtype)
-basis = d3.DiskBasis(coords, shape=(Nphi, Nr), radius=1, dealias=dealias, dtype=dtype, azimuth_library='matrix')
+basis = d3.DiskBasis(coords, shape=(Nphi, Nr), radius=radius, dealias=dealias, dtype=dtype, azimuth_library='matrix')
 phi, r = basis.local_grids()
-S1_basis = basis.S1_basis(radius=1)
+S1_basis = basis.S1_basis(radius=radius)
+x = r * np.cos(phi)
+y = r * np.sin(phi)
 
 # Fields
 u = dist.VectorField(coords, name='u', bases=basis)
@@ -65,12 +69,7 @@ lift_basis = basis.clone_with(k=2) # Natural output basis
 lift = lambda A, n: d3.LiftTau(A, lift_basis, n)
 
 #strain_rate = d3.grad(u) + d3.trans(d3.grad(u))
-#shear_stress = d3.azimuthal(strain_rate(r=1))
-
-#Heating
-Q = dist.Field(name='Q', bases=basis)
-Q['g'] = 4 
-Q = d3.Grid(Q).evaluate()
+#shear_stress = d3.azimuthal(strain_rate(r=radius))
 
 mask = dist.Field(name='mask', bases=basis)
 grid_slices = dist.layouts[-1].slices(mask.domain, dealias)
@@ -79,19 +78,24 @@ with h5py.File('masks/moosinesq_{}x{}_de{:.1f}.h5'.format(Nr,Nphi,dealias)) as f
     mask['g'] = f['mask'][:,grid_slices[-1]]
 mask = d3.Grid(mask).evaluate()
 
-r_vec = dist.VectorField(coords, name='er', bases=basis.radial_basis)
-r_vec['g'][1] = r
+y_vec = dist.VectorField(coords, name='er', bases=basis)
+y_vec['g'][0] = np.cos(phi)
+y_vec['g'][1] = np.sin(phi)
+y_vec = d3.Grid(y_vec).evaluate()
+
+T0 = dist.Field(name='T0', bases=basis)
+T0['g'] = -y/(2*radius)
 
 # Problem
 problem = d3.IVP([p, u, T, tau_u, tau_T], namespace=locals())
 problem.add_equation("div(u) = 0")
-problem.add_equation("dt(u) - nu*lap(u) + grad(p) + lift(tau_u,-1) - r_vec*T = - dot(u, grad(u)) - mask*u*mask_tau")
-problem.add_equation("dt(T) - kappa*lap(T)  + lift(tau_T,-1)                 = - dot(u, grad(T)) + kappa*Q - mask*T*mask_tau")
+problem.add_equation("dt(u) - nu*lap(u) + grad(p) + lift(tau_u,-1) = y_vec*T  - dot(u, grad(u)) - mask*u*mask_tau")
+problem.add_equation("dt(T) - kappa*lap(T)  + lift(tau_T,-1)       = - dot(u, grad(T)) - mask*(T-T0)*mask_tau")
 #problem.add_equation("shear_stress = 0")
-problem.add_equation("azimuthal(u(r=1)) = 0")
-problem.add_equation("radial(u(r=1)) = 0", condition="nphi != 0")
-problem.add_equation("p(r=1) = 0", condition='nphi == 0') # Pressure gauge
-problem.add_equation("T(r=1) = 0")
+problem.add_equation("azimuthal(u(r=radius)) = 0")
+problem.add_equation("radial(u(r=radius)) = 0", condition="nphi != 0")
+problem.add_equation("p(r=radius) = 0", condition='nphi == 0') # Pressure gauge
+problem.add_equation("T(r=radius) = T0(r=radius)")
 
 # Solver
 solver = problem.build_solver(timestepper)
@@ -101,11 +105,12 @@ solver.stop_sim_time = stop_sim_time
 T.fill_random('g', seed=42, distribution='standard_normal') # Random noise
 T.low_pass_filter(scales=0.25) # Keep only lower fourth of the modes
 T['g'] *= 1e-3
-T['g'] += 1 - r**2
+T['g'] += T0['g']
 
 # Analysis
 snapshots = solver.evaluator.add_file_handler(data_dir+'slices', sim_dt=0.1, max_writes=20)
 snapshots.add_task(T, scales=(1, 1))
+snapshots.add_task(d3.curl(u), scales=(1, 1), name='vorticity')
 
 scalars = solver.evaluator.add_file_handler(data_dir+'scalars', sim_dt=0.01)
 scalars.add_task(integ(0.5*d3.dot(u,u)), name='KE')

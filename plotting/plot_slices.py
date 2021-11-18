@@ -43,6 +43,7 @@ plotter_kwargs = { 'col_inch' : int(args['--col_inch']), 'row_inch' : int(args['
 
 # Just plot a single plot (1x1 grid) of the field "T eq"
 # remove_x_mean option removes the (numpy horizontal mean) over phi
-plotter.setup_grid(num_cols=1, num_rows=1, polar=True, **plotter_kwargs)
-plotter.add_polar_colormesh('T', azimuth_basis='phi', radial_basis='r', remove_x_mean=True, r_inner=0, r_outer=radius)
+plotter.setup_grid(num_cols=2, num_rows=1, polar=True, **plotter_kwargs)
+plotter.add_polar_colormesh('T', azimuth_basis='phi', radial_basis='r', remove_x_mean=False, r_inner=0, r_outer=radius)
+plotter.add_polar_colormesh('vorticity', azimuth_basis='phi', radial_basis='r', remove_x_mean=False, r_inner=0, r_outer=radius, cmap='PuOr_r')
 plotter.plot_colormeshes(start_fig=start_fig, dpi=int(args['--dpi']))
