@@ -1,0 +1,133 @@
+% Preamble
+\documentclass[twocolumn, linenumbers, twocolappendix]{aastex631}
+%\documentclass[twocolumn]{aastex631}
+\usepackage{natbib}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+%%%% Custom commands
+\newcommand{\yL}{\ensuremath{\mathcal{Y}_{\rm{L}}}}
+\newcommand{\yS}{\ensuremath{\mathcal{Y}_{\rm{S}}}}
+\newcommand{\justgrad}{\ensuremath{\nabla}}
+\newcommand{\gradrad}{\ensuremath{\nabla_{\rm{rad}}}}
+\newcommand{\gradad}{\ensuremath{\nabla_{\rm{ad}}}}
+\newcommand{\gradC}{\ensuremath{\nabla_{\mathrm{C}}}}
+\newcommand{\gradmu}{\ensuremath{\nabla_{\mu}}}
+\newcommand{\gradL}{\ensuremath{\nabla_{\mathrm{L}}}}
+\newcommand{\gradT}{\ensuremath{\nabla_{\mathrm{T}}}}
+\newcommand{\Ro}{\ensuremath{\mathrm{R}_{0}}}
+\newcommand{\delp}{\ensuremath{\delta_{\rm{p}}}}
+\newcommand{\Fbot}{\ensuremath{F_{\rm{bot}}}}
+\newcommand{\Ftot}{\ensuremath{F_{\rm{tot}}}}
+\newcommand{\Frad}{\ensuremath{F_{\rm{rad}}}}
+\newcommand{\Fconv}{\ensuremath{F_{\rm{conv}}}}
+\newcommand{\Fcz}{\ensuremath{F_{\rm{cz}}}}
+\newcommand{\mP}{\ensuremath{\mathcal{P}}}
+\newcommand{\mD}{\ensuremath{\mathcal{D}}}
+\newcommand{\dP}{\ensuremath{\delta_{\rm{p}}}}
+\newcommand{\Lcz}{\ensuremath{L_{\rm{CZ}}}}
+\newcommand{\mR}{\ensuremath{\mathcal{R}}}
+\newcommand{\mS}{\ensuremath{\mathcal{S}}}
+\newcommand\Pran{\ensuremath{\mathrm{Pr}}}
+\newcommand{\brunt}{{Brunt-V\"{a}is\"{a}l\"{a}}}
+
+\newcommand{\angles}[1]{\langle #1 \rangle}
+\newcommand{\pd}[1]{\partial_{#1}}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+\newcommand{\M}[1]{\mathbf{#1}}
+\renewcommand{\dot}{\vec{\cdot}}
+\renewcommand{\bar}[1]{\overline{#1}}
+\newcommand{\grad}{\vec{\nabla}}
+\newcommand{\cross}{\vec{\times}}
+\newcommand{\laplacian}{\nabla^2}
+
+\newcommand{\editone}[1]{\textcolor{orange}{#1}}
+
+%%%% Journal preamble
+\received{April 1, 2022}
+\revised{April 1, 2022}
+\accepted{April 1, 2022}
+\published{April 1, 2022}
+\submitjournal{ArXiV}
+
+\shorttitle{Moosinesq Convection}
+\shortauthors{Anders et al}
+
+\begin{document}
+
+%%%% Title and Abstract
+\title{On the Moosinesq Approximation}
+\author[0000-0002-3433-4733]{Evan H. Anders}
+\affiliation{CIERA, Northwestern University, Evanston IL 60201, USA}
+\author[0000-0002-4791-6724]{Evan B. Bauer}
+\affiliation{Center for Astrophysics | Harvard & Smithsonian, 60 Garden St., Cambridge, MA 02138, USA}
+\author[0000-0001-5048-9973]{Adam S. Jermyn}
+\affiliation{Center for Computational Astrophysics, Flatiron Institute, New York, NY 10010, USA}
+\author[0000-0001-8935-219X]{Benjamin P. Brown}
+\affiliation{Department Astrophysical and Planetary Sciences \& LASP, University of Colorado, Boulder, CO 80309, USA}
+\author[0000-0003-1651-9141]{Eric W. Hester}
+\affiliation{Department of Mathematics, The University of California, Los Angeles, 520 Portola Plaza 90024, California, United States of America}
+%Mindy?
+\author[0000-0003-1012-3031]{Jared A. Goldberg}
+\affiliation{Department of Physics, University of California, Santa Barbara, CA 93106, USA}
+\author[0000-0002-7635-9728]{Daniel Lecoanet}
+\affiliation{CIERA, Northwestern University, Evanston IL 60201, USA}
+\affiliation{Department of Engineering Sciences and Applied Mathematics, Northwestern University, Evanston IL 60208, USA}
+
+\correspondingauthor{Evan H. Anders}
+\email{evan.anders@northwestern.edu}
+
+\begin{abstract}
+    Did you know mooses exist? Cause they do.
+\end{abstract}
+\keywords{I don't know.}
+
+
+
+%%%% Body of paper
+\input{intro}
+
+%\begin{figure}[t!]
+%\centering
+%\includegraphics[width=\textwidth]{mask.pdf}
+%\caption{
+%   A picture of the moose mask that goes into the equations
+%\label{fig:mask}
+%}
+%\end{figure}
+
+\input{theory}
+
+%\begin{figure*}[t]
+%\centering
+%\includegraphics[width=\textwidth]{moosinesq.pdf}
+%\caption{
+%    A picture of swirly moose dynamics.
+%\label{fig:moosinesq}
+%}
+%\end{figure*}
+
+
+
+\input{results}
+
+\input{conclusions}
+
+\begin{acknowledgments}
+We thank ...
+EHA is funded as a CIERA Postdoctoral fellow and would like to thank CIERA and Northwestern University. 
+This research was supported in part by the National Science Foundation under Grant No. PHY-1748958, and we acknowledge the hospitality of KITP during the Probes of Transport in Stars Program.
+Computations were conducted with support from the NASA High End Computing (HEC) Program through the NASA Advanced Supercomputing (NAS) Division at Ames Research Center on Pleiades with allocation GID s2276.
+The Flatiron Institute is supported by the Simons Foundation.
+\end{acknowledgments}
+
+
+\bibliographystyle{aasjournal}
+\bibliography{biblio}
+\end{document}
