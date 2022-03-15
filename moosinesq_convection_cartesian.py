@@ -31,8 +31,8 @@ dealias = 3/2
 stop_sim_time = 1e3
 timestepper = d3.SBDF2
 dtype = np.float64
-mask_tau = 1e1
-initial_timestep = np.min((0.1, 1/mask_tau))
+mask_timescale = 1e1
+initial_timestep = np.min((0.1, 1/mask_timescale))
 max_timestep = initial_timestep
 
 data_dir = './' + sys.argv[0].split('.py')[0]
@@ -49,7 +49,7 @@ coords = d3.PolarCoordinates('phi', 'r')
 dist = d3.Distributor(coords, dtype=dtype)
 basis = d3.DiskBasis(coords, shape=(Nphi, Nr), radius=radius, dealias=dealias, dtype=dtype, azimuth_library='matrix')
 phi, r = basis.local_grids()
-S1_basis = basis.S1_basis(radius=radius)
+S1_basis = basis.S1_basis()
 x = r * np.cos(phi)
 y = r * np.sin(phi)
 
@@ -59,14 +59,15 @@ p = dist.Field(name='p', bases=basis)
 T = dist.Field(name='T', bases=basis)
 tau_u = dist.VectorField(coords, name='tau_u', bases=S1_basis)
 tau_T = dist.Field(name='tau_T', bases=S1_basis)
+tau_p = dist.Field(name='tau_p')
 
 # Substitutions
 nu = np.sqrt(Pr/Ra)
 kappa = nu/Pr
 
 integ = lambda A: d3.Integrate(A, coords)
-lift_basis = basis.clone_with(k=2) # Natural output basis
-lift = lambda A, n: d3.LiftTau(A, lift_basis, n)
+lift_basis = basis#.clone_with(k=2) # Natural output basis
+lift = lambda A, n: d3.Lift(A, lift_basis, n)
 
 #strain_rate = d3.grad(u) + d3.trans(d3.grad(u))
 #shear_stress = d3.azimuthal(strain_rate(r=radius))
@@ -74,7 +75,7 @@ lift = lambda A, n: d3.LiftTau(A, lift_basis, n)
 mask = dist.Field(name='mask', bases=basis)
 grid_slices = dist.layouts[-1].slices(mask.domain, dealias)
 with h5py.File('masks/moosinesq_{}x{}_de{:.1f}.h5'.format(Nr,Nphi,dealias)) as f:
-    mask.require_scales(dealias)
+    mask.change_scales(dealias)
     mask['g'] = f['mask'][:,grid_slices[-1]]
 mask = d3.Grid(mask).evaluate()
 
@@ -87,14 +88,12 @@ T0 = dist.Field(name='T0', bases=basis)
 T0['g'] = -y/(2*radius)
 
 # Problem
-problem = d3.IVP([p, u, T, tau_u, tau_T], namespace=locals())
-problem.add_equation("div(u) = 0")
-problem.add_equation("dt(u) - nu*lap(u) + grad(p) + lift(tau_u,-1) = y_vec*T  - dot(u, grad(u)) - mask*u*mask_tau")
-problem.add_equation("dt(T) - kappa*lap(T)  + lift(tau_T,-1)       = - dot(u, grad(T)) - mask*(T-T0)*mask_tau")
-#problem.add_equation("shear_stress = 0")
-problem.add_equation("azimuthal(u(r=radius)) = 0")
-problem.add_equation("radial(u(r=radius)) = 0", condition="nphi != 0")
-problem.add_equation("p(r=radius) = 0", condition='nphi == 0') # Pressure gauge
+problem = d3.IVP([p, u, T, tau_p, tau_u, tau_T], namespace=locals())
+problem.add_equation("div(u) + tau_p = 0")
+problem.add_equation("dt(u) - nu*lap(u) + grad(p) + lift(tau_u,-1) = y_vec*T  - dot(u, grad(u)) - mask*u*mask_timescale")
+problem.add_equation("dt(T) - kappa*lap(T)  + lift(tau_T,-1)       = - dot(u, grad(T)) - mask*(T-T0)*mask_timescale")
+problem.add_equation("u(r=radius) = 0")
+problem.add_equation("integ(p) = 0")
 problem.add_equation("T(r=radius) = T0(r=radius)")
 
 # Solver
