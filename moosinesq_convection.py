@@ -1,8 +1,25 @@
+"""
+Dedalus script for moosinesq convection
+
+Usage:
+    moosinesq_convection.py [options] 
+    moosinesq_convection.py <config> [options] 
+
+Options:
+    --Ra=<Rayleigh>            The Rayleigh number [default: 1e7]
+    --nr=<n>                   radial resolution [default: 128]
+
+    --label=<label>            Optional additional case name label
+
+    --plot_model               If flagged, create and plt.show() some plots of the 1D atmospheric structure.
+"""
+
 import os
 import sys
 import h5py
 from mpi4py import MPI
 
+from docopt import docopt
 import numpy as np
 import time
 import dedalus.public as d3
@@ -10,20 +27,12 @@ from scipy.special import jv
 import logging
 logger = logging.getLogger(__name__)
 
-# TODO: remove azimuth library? might need to fix DCT truncation
-# TODO: automate hermitian conjugacy enforcement
-# TODO: finalize filehandlers to process virtual file
-
-#Resolutions:
-# 64 x 32 at Ra = 1e5
-# 96 x 48 at Ra = 1e6 (marginal)
-# 256 x 128 at Ra = 1e7
-
-
+args = docopt(__doc__)
 
 # Parameters
-Ra_str = '1e8'
-Nphi, Nr = 256, 128
+Ra_str = args['--Ra']
+Nr = int(args['--nr'])
+Nphi = 2*Nr
 Ra = float(Ra_str)
 radius = 1
 Pr = 1
@@ -34,10 +43,13 @@ dtype = np.float64
 mask_timescale = 1e1
 initial_timestep = np.min((0.1, 1/mask_timescale))
 max_timestep = initial_timestep
+safety = 0.15
 
 data_dir = './' + sys.argv[0].split('.py')[0]
-data_dir += '_Ra{}_Pr{}_{}x{}/'.format(Ra_str, Pr, Nphi, Nr)
-
+data_dir += '_Ra{}_Pr{}_{}x{}'.format(Ra_str, Pr, Nphi, Nr)
+if args['--label'] is not None:
+    data_dir += '_{}'.format(args['--label'])
+data_dir += '/'
 if MPI.COMM_WORLD.rank == 0:
     if not os.path.exists('{:s}/'.format(data_dir)):
         os.makedirs('{:s}/'.format(data_dir))
@@ -48,7 +60,7 @@ logger.info('saving run in {}'.format(data_dir))
 coords = d3.PolarCoordinates('phi', 'r')
 dist = d3.Distributor(coords, dtype=dtype)
 basis = d3.DiskBasis(coords, shape=(Nphi, Nr), radius=radius, dealias=dealias, dtype=dtype, azimuth_library='matrix')
-phi, r = basis.local_grids()
+phi, r = dist.local_grids(basis)
 S1_basis = basis.S1_basis()
 x = r * np.cos(phi)
 y = r * np.sin(phi)
@@ -69,12 +81,9 @@ integ = lambda A: d3.Integrate(A, coords)
 lift_basis = basis#.clone_with(k=2) # Natural output basis
 lift = lambda A, n: d3.Lift(A, lift_basis, n)
 
-#strain_rate = d3.grad(u) + d3.trans(d3.grad(u))
-#shear_stress = d3.azimuthal(strain_rate(r=radius))
-
 mask = dist.Field(name='mask', bases=basis)
 grid_slices = dist.layouts[-1].slices(mask.domain, dealias)
-with h5py.File('masks/moosinesq_{}x{}_de{:.1f}.h5'.format(Nr,Nphi,dealias)) as f:
+with h5py.File('masks/moosinesq_Ra{:.1e}_{}x{}_de{:.1f}.h5'.format(Ra, Nr,Nphi,dealias)) as f:
     mask.change_scales(dealias)
     mask['g'] = f['mask'][:,grid_slices[-1]]
 mask = d3.Grid(mask).evaluate()
@@ -86,6 +95,8 @@ y_vec = d3.Grid(y_vec).evaluate()
 
 T0 = dist.Field(name='T0', bases=basis)
 T0['g'] = -y/(2*radius)
+
+t = dist.Field()
 
 # Problem
 problem = d3.IVP([p, u, T, tau_p, tau_u, tau_T], namespace=locals())
@@ -109,6 +120,7 @@ T['g'] += T0['g']
 # Analysis
 snapshots = solver.evaluator.add_file_handler(data_dir+'slices', sim_dt=0.1, max_writes=20)
 snapshots.add_task(T, scales=(1, 1))
+snapshots.add_task((1-mask)*T, scales=(1, 1), name='mask_T')
 snapshots.add_task(d3.curl(u), scales=(1, 1), name='vorticity')
 
 scalars = solver.evaluator.add_file_handler(data_dir+'scalars', sim_dt=0.01)
@@ -119,7 +131,7 @@ flow = d3.GlobalFlowProperty(solver, cadence=10)
 flow.add_property(d3.dot(u,u), name='u2')
 
 timestep = initial_timestep
-CFL = d3.CFL(solver, initial_timestep, cadence=1, safety=0.2, threshold=0.1, max_dt=max_timestep)
+CFL = d3.CFL(solver, initial_timestep, cadence=1, safety=safety, threshold=0.1, max_dt=max_timestep)
 CFL.add_velocity(u)
 
 

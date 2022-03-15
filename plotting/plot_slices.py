@@ -10,7 +10,7 @@ Options:
     --start_fig=<fig_start_num>         Number of first figure file [default: 1]
     --start_file=<file_start_num>       Number of Dedalus output file to start plotting at [default: 1]
     --n_files=<num_files>               Total number of files to plot
-    --dpi=<dpi>                         Image pixel density [default: 200]
+    --dpi=<dpi>                         Image pixel density [default: 600]
 
     --col_inch=<in>                     Number of inches / column [default: 3]
     --row_inch=<in>                     Number of inches / row [default: 3]
@@ -44,6 +44,6 @@ plotter_kwargs = { 'col_inch' : int(args['--col_inch']), 'row_inch' : int(args['
 # Just plot a single plot (1x1 grid) of the field "T eq"
 # remove_x_mean option removes the (numpy horizontal mean) over phi
 plotter.setup_grid(num_cols=2, num_rows=1, polar=True, **plotter_kwargs)
-plotter.add_polar_colormesh('T', azimuth_basis='phi', radial_basis='r', remove_x_mean=False, r_inner=0, r_outer=radius)
-plotter.add_polar_colormesh('vorticity', azimuth_basis='phi', radial_basis='r', remove_x_mean=False, r_inner=0, r_outer=radius, cmap='PuOr_r')
+plotter.add_polar_colormesh('mask_T', azimuth_basis='phi', radial_basis='r', remove_x_mean=False, r_inner=0, r_outer=radius)
+plotter.add_polar_colormesh('vorticity', azimuth_basis='phi', radial_basis='r', remove_x_mean=False, r_inner=0, r_outer=radius, cmap='PuOr_r', cmap_exclusion=0.04)
 plotter.plot_colormeshes(start_fig=start_fig, dpi=int(args['--dpi']))
