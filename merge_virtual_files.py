@@ -39,7 +39,6 @@ def merge_virtual(joint_file, virtual_path):
     """
     virtual_path = pathlib.Path(virtual_path)
     logger.info("Merging setup from {}".format(virtual_path))
-
     with h5py.File(str(virtual_path), mode='r') as virtual_file:
         # File metadata
         try:
@@ -92,7 +91,14 @@ def merge_virtual_file_single_set(set_path, cleanup=False):
     logger.info("Merging virtual file {}".format(set_path))
 
     set_stem = set_path.stem
-    joint_path = set_path.parent.joinpath("{}_merged.h5".format(set_stem))
+    handler_name = set_path.parent.stem
+    if 'merged' in set_stem:
+        return
+    joint_path = set_path.parent.parent.joinpath("merged_{}/merged_{}.h5".format(handler_name, set_stem))
+    if not joint_path.parent.exists():
+        if MPI_RANK == 0:
+            joint_path.parent.mkdir(exist_ok=True)
+        MPI.COMM_WORLD.Barrier()
 
     # Create joint file, overwriting if it already exists
     with h5py.File(str(joint_path), mode='w') as joint_file:
