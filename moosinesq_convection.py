@@ -10,6 +10,7 @@ Options:
     --nr=<n>                   radial resolution [default: 128]
 
     --label=<label>            Optional additional case name label
+    --restart=<restart>        Path to checkpoint file to restart from
 
     --plot_model               If flagged, create and plt.show() some plots of the 1D atmospheric structure.
 """
@@ -111,19 +112,29 @@ problem.add_equation("T(r=radius) = T0(r=radius)")
 solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
-# Initial conditions
-T.fill_random('g', seed=42, distribution='standard_normal') # Random noise
-T.low_pass_filter(scales=0.25) # Keep only lower fourth of the modes
-T['g'] *= 1e-3
-T['g'] += T0['g']
+
+if args['--restart'] is None:
+    # Initial conditions
+    T.fill_random('g', seed=42, distribution='standard_normal') # Random noise
+    T.low_pass_filter(scales=0.25) # Keep only lower fourth of the modes
+    T['g'] *= 1e-3
+    T['g'] += T0['g']
+    write_mode = 'overwrite'
+else:
+    logger.info('restarting from {}'.format(args['--restart']))
+    write, initial_timestep = solver.load_state(args['--restart'])
+    write_mode = 'append'
+
+checkpoint = solver.evaluator.add_file_handler(data_dir+'checkpoint', sim_dt=10, max_writes=1, mode=write_mode)
+checkpoint.add_tasks(solver.state, layout='g')
 
 # Analysis
-snapshots = solver.evaluator.add_file_handler(data_dir+'slices', sim_dt=0.1, max_writes=20)
+snapshots = solver.evaluator.add_file_handler(data_dir+'slices', sim_dt=0.05, max_writes=20, mode=write_mode)
 snapshots.add_task(T, scales=(1, 1))
 snapshots.add_task((1-mask)*T, scales=(1, 1), name='mask_T')
 snapshots.add_task(d3.curl(u), scales=(1, 1), name='vorticity')
 
-scalars = solver.evaluator.add_file_handler(data_dir+'scalars', sim_dt=0.01)
+scalars = solver.evaluator.add_file_handler(data_dir+'scalars', sim_dt=0.01, mode=write_mode)
 scalars.add_task(integ(0.5*d3.dot(u,u)), name='KE')
 
 # Flow properties
@@ -154,6 +165,11 @@ except:
     logger.error('Exception raised, triggering end of main loop.')
     raise
 finally:
+    logger.info('making final checkpoint')
+    final_checkpoint = solver.evaluator.add_file_handler(data_dir+'final_checkpoint', sim_dt=timestep/10, max_writes=1, mode=write_mode)
+    final_checkpoint.add_tasks(solver.state, layout='g')
+    solver.step(timestep)
+
     end_time = time.time()
     logger.info('Iterations: %i' %solver.iteration)
     logger.info('Sim end time: %f' %solver.sim_time)
