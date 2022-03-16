@@ -6,6 +6,5 @@
 *.bbg
 *.blg
 *.out
-*.pdf
 *.fls
 *.fdb_latexmk
