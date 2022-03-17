@@ -8,6 +8,7 @@ Usage:
 Options:
     --Ra=<Rayleigh>            The Rayleigh number [default: 1e7]
     --nr=<n>                   radial resolution [default: 128]
+    --gamma=<g>                Inverse damping timescale [default: 40]
 
     --label=<label>            Optional additional case name label
     --restart=<restart>        Path to checkpoint file to restart from
@@ -32,22 +33,23 @@ args = docopt(__doc__)
 
 # Parameters
 Ra_str = args['--Ra']
+gamma_str = args['--gamma']
 Nr = int(args['--nr'])
 Nphi = 2*Nr
 Ra = float(Ra_str)
 radius = 1
 Pr = 1
+gamma = float(gamma_str)
 dealias = 3/2
 stop_sim_time = 1e3
 timestepper = d3.SBDF2
 dtype = np.float64
-mask_timescale = 2e1
-initial_timestep = np.min((0.1, 1/mask_timescale))
+initial_timestep = np.min((0.1, 1/gamma))
 max_timestep = initial_timestep
 safety = 0.15
 
 data_dir = './' + sys.argv[0].split('.py')[0]
-data_dir += '_Ra{}_Pr{}_{}x{}'.format(Ra_str, Pr, Nphi, Nr)
+data_dir += '_Ra{}_Pr{}_gamma{}_{}x{}'.format(Ra_str, Pr, gamma_str, Nphi, Nr)
 if args['--label'] is not None:
     data_dir += '_{}'.format(args['--label'])
 data_dir += '/'
@@ -84,7 +86,9 @@ lift = lambda A, n: d3.Lift(A, lift_basis, n)
 
 mask = dist.Field(name='mask', bases=basis)
 grid_slices = dist.layouts[-1].slices(mask.domain, dealias)
-with h5py.File('masks/moosinesq_Ra{:.1e}_{}x{}_de{:.1f}.h5'.format(Ra, Nr,Nphi,dealias)) as f:
+mask_file = 'masks/moosinesq_Ra{:.1e}_{}x{}_de{:.1f}_gamma{}.h5'.format(Ra, Nr,Nphi,dealias,gamma_str)
+with h5py.File(mask_file) as f:
+    logger.info('loading mask from {}'.format(mask_file))
     mask.change_scales(dealias)
     mask['g'] = f['mask'][:,grid_slices[-1]]
 mask = d3.Grid(mask).evaluate()
@@ -102,8 +106,8 @@ t = dist.Field()
 # Problem
 problem = d3.IVP([p, u, T, tau_p, tau_u, tau_T], namespace=locals())
 problem.add_equation("div(u) + tau_p = 0")
-problem.add_equation("dt(u) - nu*lap(u) + grad(p) + lift(tau_u,-1) = y_vec*T  - dot(u, grad(u)) - mask*u*mask_timescale")
-problem.add_equation("dt(T) - kappa*lap(T)  + lift(tau_T,-1)       = - dot(u, grad(T)) - mask*(T-T0)*mask_timescale")
+problem.add_equation("dt(u) - nu*lap(u) + grad(p) + lift(tau_u,-1) = y_vec*T  - dot(u, grad(u)) - mask*u*gamma")
+problem.add_equation("dt(T) - kappa*lap(T)  + lift(tau_T,-1)       = - dot(u, grad(T)) - mask*(T-T0)*gamma")
 problem.add_equation("u(r=radius) = 0")
 problem.add_equation("integ(p) = 0")
 problem.add_equation("T(r=radius) = T0(r=radius)")
