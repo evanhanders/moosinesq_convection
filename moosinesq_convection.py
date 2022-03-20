@@ -44,7 +44,7 @@ dealias = 3/2
 stop_sim_time = 1e3
 timestepper = d3.SBDF2
 dtype = np.float64
-initial_timestep = np.min((0.1, 1/gamma))
+initial_timestep = np.min((0.1, 0.25/gamma))
 max_timestep = initial_timestep
 safety = 0.15
 
@@ -101,7 +101,19 @@ y_vec = d3.Grid(y_vec).evaluate()
 T0 = dist.Field(name='T0', bases=basis)
 T0['g'] = -y/(2*radius)
 
-t = dist.Field()
+if args['--restart'] is None:
+    # Initial conditions
+    T.fill_random('g', seed=42, distribution='standard_normal') # Random noise
+    T.low_pass_filter(scales=0.25) # Keep only lower fourth of the modes
+    T.change_scales(basis.dealias)
+    T['g'] *= 1e-3*(1-mask['g'])
+    T.change_scales((1,1))
+    T['g'] += T0['g']
+    write_mode = 'overwrite'
+else:
+    logger.info('restarting from {}'.format(args['--restart']))
+    write, initial_timestep = solver.load_state(args['--restart'])
+    write_mode = 'append'
 
 # Problem
 problem = d3.IVP([p, u, T, tau_p, tau_u, tau_T], namespace=locals())
@@ -117,19 +129,7 @@ solver = problem.build_solver(timestepper)
 solver.stop_sim_time = stop_sim_time
 
 
-if args['--restart'] is None:
-    # Initial conditions
-    T.fill_random('g', seed=42, distribution='standard_normal') # Random noise
-    T.low_pass_filter(scales=0.25) # Keep only lower fourth of the modes
-    T['g'] *= 1e-3
-    T['g'] += T0['g']
-    write_mode = 'overwrite'
-else:
-    logger.info('restarting from {}'.format(args['--restart']))
-    write, initial_timestep = solver.load_state(args['--restart'])
-    write_mode = 'append'
-
-checkpoint = solver.evaluator.add_file_handler(data_dir+'checkpoint', sim_dt=10, max_writes=1, mode=write_mode)
+checkpoint = solver.evaluator.add_file_handler(data_dir+'checkpoint', sim_dt=5, max_writes=1, mode=write_mode)
 checkpoint.add_tasks(solver.state, layout='g')
 
 # Analysis
