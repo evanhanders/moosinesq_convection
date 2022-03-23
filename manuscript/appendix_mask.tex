@@ -1,0 +1,13 @@
+\section{Moose Mask Creation}
+\label{app:mask}
+
+The Moose is implemented using the volume penalization method described in e.g., \citet{hester_etal_2021}.
+We first take an image of a majestic moose from the internet (Fig.~\ref{fig:methods}, left\footnote{Available online at \url{https://www.publicdomainpictures.net/en/view-image.php?image=317077&picture=moose}.}).
+We convert this image into polar coordinates on the grid space representation of our basis function (Fig.~\ref{fig:methods, center}).
+
+We then interpolate from pixel values into polar coordinates ($r$, $\phi$) sampled on the natural grid of our spectral bases (Fig.~\ref{fig:methods}, middle).
+The resulting moose mask which is fed directly into our equations during timestepping is thus produced and shown in Fig.~\ref{fig:methods}, right.
+
+We next compute a signed distance function $d_s$ at each pixel to determine how far that pixel is from the edge of the moose.
+We convert that signed distance function (whose range is [-0.5, 0.5]) into a profile that varies smoothly from 0 to 1 over the moose boundaries, $\mathcal{M} = 0.5(1 - \mathrm{erf}(\pi^{1/2}d/\delta))$.
+

@@ -1,30 +1,20 @@
 \section{Introduction}
 \label{sec:introduction}
 
-The Boussinesq approximation is a commonly-used approximation in the field of fluid dynamics [liberal citations of authors' work here].
-It has [certain advantages] and [certain disadvantages], and is ultimately recognized for its great utility in [fluids jargon here].
+Convection is important in all sorts of natural systems\footnote{Trust us, we're experts}.
+In particular, most stars have convection zones.
+This can be determined by looking at the Sun\footnote{Please do not look at the Sun.} or by running 1D stellar evolution models.
+It is crucial that we gain a better understanding of convection since it is such a ubiquitous and poorly understood process in astrophysics\footnote{The financial wellfare of many of the authors depend on you agreeing with this statement.}.
 
-However, the Boussinesq approximation must be abandoned in situations where compressibility is an important consideration.
-This can occur in microbiology \citep{Ravetto2014}, and it has long been known that wildlife ecology is another such situation \citep[e.g.][]{Enright1963}.
-Such studies have often focused on domains in which animal compressibility is more pronounced (i.e. deep-sea life).
-However, motivated by a recent report of an unexpected occurrence of acute compression and deformation in a land-animal context \citep{Gudmannsson2018}---as well as a delightful linguistic coincidence---we present ground-breaking work on fundamental fluid dynamics in the context of the moose (\textit{Alces alces}), a domain which we dub the \textit{moosinesq approximation}.
-This approximation is suitable for describing the active and dynamic inner lives and environments (both physical and mental; see \citealp{Gibson2015}) of the moose.
+Convective motions are three-dimensional, so many modern convective experiments utilize multi-dimensional fluid dynamical simulations.
+However, modern computational resources are too limited to time-evolve the Navier-Stokes equations in their most complex form \citep{landau}, including all of the important physics present in stars \citep{Paxton2011, Paxton2013, Paxton2015, Paxton2018, Paxton2019}.
+As a result, numericists make simplifying assumptions to create tractable experiments, for example by simplifying the geometry or the equations.
+The most widely-used simplified set of equations is called the \emph{Boussinesq approximation} \citep{spiegel_veronis_1960}, and it has been used in thousands of studies \citep[see e.g.,][]{ahlers_etal_2009}.
 
-The moose is a large mammal indigenous to North America and Europe, which can have a mass of up to 550~kg and a height of up to 2~m \citep{CPWmoose}.
-...
-Our study is not the first time that moose have prompted significant scientific or technological development \citep[see, e.g.,][]{Handel2009}.
-
-\subsection{Historical context}
-
-The circumpolar distribution of Alces alces (moose) has led to multiple independent points of cultural connection to and subsequent efforts directed at harnessing the largest cervid with varying levels of success. 
-Rock carvings in the Kalbak-Tash group, Altai Republic, Russia indicate that ab antuquo efforts to ride or cause moose to pull sleds have been documented and subsequently received comment since the Bronze Age and likely earlier \citep{useev_2014}.
-In North America, European efforts to colonize Canada have been intermittently aided by the capture of wild individual moose more suited to traversing long distances in snow and over boggy ground than domestic alternatives leading to practical applications such as the use of a team of moose to deliver mail by Mr. W.R. Day \citep{archives_unleashed}.
-The exploitation of this practicality was limited, obviously, by the size and temperament of the moose which after about the age of 3 days is entirely antagonistic towards humans \citep{sipko_etal_2019}.
-A few spectacular exceptions of moose under harness has kept hope burning for a future with a less fraught relationship. 
-The most noteworthy partnership is widely remembered through the efforts of Albert Vaillancourt of Chelmsford, Ontario who exhibited moose pulling a surrey during the intermissions of horse racing \citep{chisholm_2019}.
-His pair of racing mooses named Moose and Silver clearly demonstrated the majesty and potential of this species \citep{landry_1941}.
- 
-This potential inspires the continuing quest for a fully domestic moose that is somewhat less likely to attack and kill humans. 
-In Russia, moose domestication is the subject of investigations initiated by Prof. P. A. Manteifel who oversaw an effort to create moose nurseries across Russia for the purpose of creating a recognizably domestic animal from about 1934 through the present \citep{sipko_etal_2019}.
-In an early, perhaps premature demonstration on December 1937, I.V. Stalin watched a military moose drill. 
-He was, “particularly impressed by the moment when moose cavalry flew out of the forest, bristling with machine guns.” He did note that the moose were not yet trained to distinguish the Red Army soldiers from the White Finns \citep{pererva_2017}.
+In this Letter, we present the first ever simulations which use an oft-overlooked simplified equation set: the \emph{Moosinesq} approximation.
+This approximation is similar to the Boussinesq approximation in every way, except it allows for the study of convection inside of a moose (\emph{Alces alces}).
+While this approximation has many\footnote{\emph{many}} applications in the terrestrial context, the authors of this paper are largely astronomers.
+Therefore we are most interested in the application of this approximation to \emph{moosive stars}, that is, stars with masses $M \gtrsim 1.3 M_\odot$ which have convective course on the main sequence.
+In section \ref{sec:methods}, we describe the Moosinesq equations and our numerical methods.
+In section \ref{sec:results}, we demonstrate the nature of flows in two-dimensional Moosinesq Convection.
+Finally, in section \ref{sec:conclusions}, we discuss applications of Moosinesq Convection to stars, human society, and beyond.
