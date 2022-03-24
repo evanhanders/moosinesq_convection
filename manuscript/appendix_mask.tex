@@ -1,13 +1,14 @@
 \section{Moose Mask Creation}
 \label{app:mask}
 
-The Moose is implemented using the volume penalization method described in e.g., \citet{hester_etal_2021}.
-We first take an image of a majestic moose from the internet (Fig.~\ref{fig:methods}, left\footnote{Available online at \url{https://www.publicdomainpictures.net/en/view-image.php?image=317077&picture=moose}.}).
-We convert this image into polar coordinates on the grid space representation of our basis function (Fig.~\ref{fig:methods, center}).
-
-We then interpolate from pixel values into polar coordinates ($r$, $\phi$) sampled on the natural grid of our spectral bases (Fig.~\ref{fig:methods}, middle).
-The resulting moose mask which is fed directly into our equations during timestepping is thus produced and shown in Fig.~\ref{fig:methods}, right.
-
-We next compute a signed distance function $d_s$ at each pixel to determine how far that pixel is from the edge of the moose.
-We convert that signed distance function (whose range is [-0.5, 0.5]) into a profile that varies smoothly from 0 to 1 over the moose boundaries, $\mathcal{M} = 0.5(1 - \mathrm{erf}(\pi^{1/2}d/\delta))$.
-
+The Moose mask $\mathcal{M}(r,\phi)$ used in Eqns.~\ref{eqn:moosementum} \& \ref{eqn:temperature} and shown in the right panel of Fig.~\ref{fig:methods} is constructed as follows.
+We read in the moose image in the left panel of Fig.~\ref{fig:methods}, and read the color value of each pixel.
+We then compute a signed distance function $d(x,y)$ with $d(x,y) \in [-0.5, 0.5]$ to determine how far each pixel is from a boundary of the moose, with zero values being at the boundaries.
+We next calculate the mask value of each pixel as
+\begin{equation}
+\mathcal{M}(x,y) = \frac{1}{2}\left(1-\mathrm{erf}\left[\frac{\sqrt{\pi} d(x,y)}{\delta}\right]\right),
+\end{equation}
+where we choose $\delta = 31.113 \left(\rm{Pr}/\rm{Ra}\right)^{1/4} \tilde{\gamma}^{-1/2}$ (see appendix \ref{app:nondim_equations}), which is ten times larger than the optimal, marginally-resolved $\delta$.
+We then interpolate the mask and sample it on our simulation grid in polar ($r, \phi$) coordinates.
+The resulting moose mask is used directly during timestepping.
+For more specifics, we refer the reader to \url{https://github.com/evanhanders/moosinesq_convection/blob/main/masks/smooth_moosinesq_ibm.ipynb}.

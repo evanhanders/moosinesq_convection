@@ -6,15 +6,20 @@ In particular, most stars have convection zones.
 This can be determined by looking at the Sun\footnote{Please do not look at the Sun.} or by running 1D stellar evolution models.
 It is crucial that we gain a better understanding of convection since it is such a ubiquitous and poorly understood process in astrophysics\footnote{The financial wellfare of many of the authors depend on you agreeing with this statement.}.
 
-Convective motions are three-dimensional, so many modern convective experiments utilize multi-dimensional fluid dynamical simulations.
+Convective motions are three-dimensional, so many modern experiments utilize multi-dimensional fluid dynamical simulations.
 However, modern computational resources are too limited to time-evolve the Navier-Stokes equations in their most complex form \citep{landau}, including all of the important physics present in stars \citep{Paxton2011, Paxton2013, Paxton2015, Paxton2018, Paxton2019}.
 As a result, numericists make simplifying assumptions to create tractable experiments, for example by simplifying the geometry or the equations.
-The most widely-used simplified set of equations is called the \emph{Boussinesq approximation} \citep{spiegel_veronis_1960}, and it has been used in thousands of studies \citep[see e.g.,][]{ahlers_etal_2009}.
+The most widely-used simplified set of equations employs the \emph{Boussinesq approximation} \citep{spiegel_veronis_1960}, and it has been used in thousands of studies \citep[see e.g.,][]{ahlers_etal_2009}.
 
-In this Letter, we present the first ever simulations which use an oft-overlooked simplified equation set: the \emph{Moosinesq} approximation.
-This approximation is similar to the Boussinesq approximation in every way, except it allows for the study of convection inside of a moose (\emph{Alces alces}).
-While this approximation has many\footnote{\emph{many}} applications in the terrestrial context, the authors of this paper are largely astronomers.
-Therefore we are most interested in the application of this approximation to \emph{moosive stars}, that is, stars with masses $M \gtrsim 1.3 M_\odot$ which have convective course on the main sequence.
+In this Letter, we present the first ever simulations which use an oft-overlooked fluid approximation: the \emph{Moosinesq} approximation.
+The Moosinesq and Boussinesq approximations are identical in every way, except convection inside of a moose (\emph{Alces alces}) can only be studied under the Moosinesq approximation.
+This approximation is suitable for describing the active and dynamic inner lives and environments (both physical and mental; see \citealp{Gibson2015}) of the moose.
+The moose is a large mammal indigenous to North America and Europe, which can have a mass of up to 550~kg and a height of up to 2~m \citep{CPWmoose}.
+Our study is not the first time that moose have prompted significant scientific or technological development \citep[see, e.g.,][]{Handel2009}.
+For a brief taste of the rich historical interactions between humanity and moose, we refer the reader to appendix~\ref{app:history}.
+
+While Moosinesq convection has many\footnote{\emph{many}} applications in the terrestrial context, the authors of this Letter are mostly astrophysicists.
+Therefore we focus on the application of this approximation to \emph{moosive stars}, that is, stars with masses $M \gtrsim 1.1 M_\odot$ which have convective cores on the main sequence.
 In section \ref{sec:methods}, we describe the Moosinesq equations and our numerical methods.
-In section \ref{sec:results}, we demonstrate the nature of flows in two-dimensional Moosinesq Convection.
-Finally, in section \ref{sec:conclusions}, we discuss applications of Moosinesq Convection to stars, human society, and beyond.
+In section \ref{sec:results}, we demonstrate the nature of flows in two-dimensional Moosinesq convection.
+Finally, in section \ref{sec:conclusions}, we discuss applications of Moosinesq convection to stars, human society, and beyond.

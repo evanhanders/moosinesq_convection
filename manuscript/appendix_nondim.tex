@@ -1,4 +1,31 @@
 \section{Nondimensional Equations, Simulation Details \& Data Availability}
 \label{app:nondim_equations}
+We time-evolve a nondimensionalized form of the Moosinesq equations.
+We choose the radius of our polar geometry domain as our nondimensional lengthscale $L$.
+We choose the temperature difference between the points ($r$, $\phi$) = ($L$, $\pi/2$) \& ($L$, $3\pi/2$) to be the nondimensional temperature scale $\Delta T$.
+The freefall velocity is therefore $u_{\rm ff} = \sqrt{\alpha g L \Delta T}$ and the nondimensional timescale is $\tau = L/u_{\rm ff}$.
+We furthermore define the Rayleigh and Prantler numbers,
+\begin{equation}
+\mathrm{Ra} = \frac{\alpha g L^3 \Delta T}{\nu \kappa_T},
+\qquad
+\mathrm{Pr} = \frac{\nu}{\kappa_T},
+\end{equation}
+and the nondimensional timescale $\tilde{\gamma} = \gamma\tau$.
 
-All of the python scripts and ipython notebooks used to create the simulation in this paper and the figures in this paper are available online in a github repository (\url{https://github.com/evanhanders/moosinesq_convection}).
+The nondimensional Moosinesq equations are then
+\begin{align}
+    \grad\dot\vec{u} &= 0,
+    \label{eqn:nd_incompressible}, \\
+    \partial_t \vec{u} + \vec{u}\dot\grad\vec{u} &= -\grad \varpi + T\hat{z} + \sqrt{\frac{\mathrm{Pr}}{\mathrm{Ra}}} \grad^2 \vec{u} - \tilde{\gamma} \mathcal{M} \vec{u},
+    \label{eqn:nd_moosementum}, \\
+    \partial_t T + \vec{u}\dot\grad T &= \frac{1}{\sqrt{\mathrm{RaPr}}} \grad^2 \vec{u} - \tilde{\gamma} \mathcal{M} T.
+    \label{eqn:nd_temperature}
+\end{align}
+The initial temperature field is linear and is hot at the bottom and cold at the top so that $T(r,\phi) = T_0 = -z/2$, where $z = r\sin(\phi)$
+We perturb this initial temperature field with noise whose magnitude is $10^{-3}$ and multiply that noise by $1 - \mathcal{M}$ to start the convective instability.
+
+We time-evolve equations \ref{eqn:nd_incompressible}-\ref{eqn:nd_temperature} using the Dedalus pseudospectral solver \citep[][version 3 on commit c153f2e]{burns_etal_2020} using timestepper RK443 and CFL safety factor 0.4.
+The equations are solved on a \texttt{DiskBasis} with 2048 radial and 4096 azimuthal points; this means that all variables are represented using TODO with 2048 radial coefficients and 4096 azimuthal.
+To avoid aliasing errors, we use the 3/2-dealiasing rule in all directions.
+
+The Python scripts and Jupyter notebooks used to perform the simulation and create the figures in this paper, are available online at \url{https://github.com/evanhanders/moosinesq_convection}.
