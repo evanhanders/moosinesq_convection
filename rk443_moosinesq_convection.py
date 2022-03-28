@@ -43,11 +43,11 @@ Pr = 1
 gamma = float(gamma_str)
 dealias = 3/2
 stop_sim_time = 1e3
-timestepper = d3.SBDF2
+timestepper = d3.RK443
 dtype = np.float64
 initial_timestep = np.min((0.1, 0.25/gamma))
 max_timestep = np.copy(initial_timestep)
-safety = 0.075
+safety = 0.4
 
 data_dir = './' + sys.argv[0].split('.py')[0]
 data_dir += '_Ra{}_Pr{}_gamma{}_{}x{}'.format(Ra_str, Pr, gamma_str, Nphi, Nr)

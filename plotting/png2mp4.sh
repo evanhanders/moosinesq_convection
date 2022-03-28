@@ -16,7 +16,7 @@
 #
 #Example
 # png2mp4 "potential_0/potential_0_fields*.png" output.mp4 30
-cat $1* | ffmpeg3 \
+cat $1* | ffmpeg \
     -y \
     -f image2pipe \
     -vcodec png \

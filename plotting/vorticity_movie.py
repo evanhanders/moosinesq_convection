@@ -82,8 +82,8 @@ ax = fig.add_axes([0, 0, 1, 1], polar=False)
 cax = fig.add_axes([0.8, 0.06, 0.15, 0.03])
 
 tasks = ['vorticity']
-vmin = -15
-vmax = 15
+vmin = -20
+vmax = 20
 
 color_plot = None
 with plotter.my_sync:
@@ -100,7 +100,7 @@ with plotter.my_sync:
                 yy = rr*np.sin(pp)
                 color_plot = ax.pcolormesh(xx, yy, dsets[tasks[0]][ni], shading='auto', cmap='PuOr_r', vmin=vmin, vmax=vmax, rasterized=True)
                 cbar = plt.colorbar(color_plot, cax=cax, orientation='horizontal')
-                cbar.set_label(r'$T$')
+                cbar.set_label('vorticity')
                 cbar.set_ticks((vmin, 0, vmax))
                 cbar.set_ticklabels(['{:.2f}'.format(vmin), '0', '{:.2f}'.format(vmax)])
                 ax.set_yticks([])

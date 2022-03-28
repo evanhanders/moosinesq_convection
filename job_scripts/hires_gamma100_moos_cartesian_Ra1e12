@@ -1,0 +1,22 @@
+#PBS -S /bin/bash
+#PBS -N hires_moosinesq_simulation_ra1e12_gamma100
+#PBS -l select=147:ncpus=28:mpiprocs=28:model=bro
+#PBS -l walltime=48:00:00
+#PBS -l site=needed=/home1+/nobackupp19+/nobackupp16/swbuild
+#PBS -j oe
+#PBS -q long
+#PBS -W group_list=s2276
+
+source /swbuild/eanders/miniconda3/etc/profile.d/conda.sh
+conda activate dedalus-d3
+cd $PBS_O_WORKDIR
+
+date
+mpiexec_mpt -n 4096 python3 moosinesq_convection.py \
+    --nr=4096 \
+    --Ra=1e12 \
+    --gamma=100 \
+    --label=48hr \
+    --wall_hours=47.8 \
+    > out.hires_moosinesq_ra1e12_gamma100.$PBS_JOBID
+date

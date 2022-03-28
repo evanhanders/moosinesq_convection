@@ -24,6 +24,7 @@ echo $NCORE
 echo "Processing $DIR on $NCORE cores"
 
 mpiexec_mpt -n $NCORE python3 plot_slices.py $DIR
+#mpiexec_mpt -n $NCORE python3 masked_movie.py $DIR
 
 cd $DIR
 $OLDPWD/png2mp4.sh snapshots/ snapshots.mp4 30

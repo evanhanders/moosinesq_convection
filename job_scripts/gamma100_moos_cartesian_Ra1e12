@@ -1,0 +1,23 @@
+#PBS -S /bin/bash
+#PBS -N rk443_moosinesq_simulation_ra1e12_gamma100
+#PBS -l select=37:ncpus=28:mpiprocs=28:model=bro
+#PBS -l walltime=48:00:00
+#PBS -l site=needed=/home1+/nobackupp19+/nobackupp16/swbuild
+#PBS -j oe
+#PBS -q long
+#PBS -W group_list=s2276
+
+source /swbuild/eanders/miniconda3/etc/profile.d/conda.sh
+conda activate dedalus-d3
+cd $PBS_O_WORKDIR
+
+date
+mpiexec_mpt -n 1024 python3 rk443_moosinesq_convection.py \
+    --nr=2048 \
+    --Ra=1e12 \
+    --gamma=100 \
+    --label=restart_48hr \
+    --wall_hours=47.8 \
+    --restart=rk443_moosinesq_convection_Ra1e12_Pr1_gamma100_4096x2048_48hr/checkpoint/checkpoint_s5.h5 \
+    > out.rk443_moosinesq_ra1e12_gamma100.$PBS_JOBID
+date
