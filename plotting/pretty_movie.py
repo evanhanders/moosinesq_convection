@@ -15,6 +15,7 @@ Options:
     --col_inch=<in>                     Number of inches / column [default: 3]
     --row_inch=<in>                     Number of inches / row [default: 3]
 """
+import gc
 import re
 from docopt import docopt
 args = docopt(__doc__)
@@ -91,6 +92,7 @@ with plotter.my_sync:
         while plotter.writes_remain():
             dsets, ni = plotter.get_dsets(tasks)
             time_data = dsets[tasks[0]].dims[0]
+            data = dsets[tasks[0]][ni]
 
             if color_plot is None:
                 r = match_basis(dsets[tasks[0]], 'r')
@@ -98,7 +100,7 @@ with plotter.my_sync:
                 rr, pp = np.meshgrid(r.ravel(), phi.ravel())
                 xx = rr*np.cos(pp)
                 yy = rr*np.sin(pp)
-                color_plot = ax.pcolormesh(xx, yy, dsets[tasks[0]][ni], shading='auto', cmap='RdBu_r', vmin=vmin, vmax=vmax, rasterized=True)
+                color_plot = ax.pcolormesh(xx, yy, data, shading='auto', cmap='RdBu_r', vmin=vmin, vmax=vmax, rasterized=True)
                 cbar = plt.colorbar(color_plot, cax=cax, orientation='horizontal')
                 cbar.set_label(r'$T$')
                 cbar.set_ticks((vmin, 0, vmax))
@@ -120,6 +122,7 @@ with plotter.my_sync:
                 for direction in ['left', 'right', 'bottom', 'top']:
                         ax.spines[direction].set_visible(False)
             else:
-                color_plot.set_array(dsets[tasks[0]][ni])
+                color_plot.set_array(data)
 
             fig.savefig('{:s}/{:s}_{:06d}.png'.format(plotter.out_dir, plotter.out_name, int(time_data['write_number'][ni]+start_fig-1)), dpi=300, bbox_inches='tight')
+            gc.collect()
