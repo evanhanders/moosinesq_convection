@@ -13,7 +13,7 @@ The Moosinesq Equations are
 In other words, they are the Boussinesq Equations \citep{spiegel_veronis_1960} with crucial Moose $\mathcal{M}$ terms in the moosementum and temperature equations (Eqn.~\ref{eqn:moosementum}- \ref{eqn:temperature}).
 Here, $\vec{u}$ is the velocity, $T$ is the temperature, $\varpi$ is the reduced pressure, $\nu$ is the kinematic viscosity, $\kappa_T$ is the thermal diffusivity, $\gamma$ is a frequency associated with the damping of motions, and $\alpha$ is the coefficient of thermal expansion.
 We solve these equations in polar $(r, \phi)$ geometry, because this geometry is most applicable to moosive stars.
-Inspired by the groundbreaking work of \citet{burns_etal_2019}, we naturally choose to have gravity point down in a Cartesian sense, $\vec{g} = - g \hat{z} = - g (\sin\phi \hat{r} + \cos\phi \hat{\phi})$, for increased confusion and lack of clarity\footnote{It is unclear what mass distribution would produce this in a star. Oh well.}.
+Inspired by the groundbreaking work of \citet{burns_etal_2019}, we naturally choose to have gravity point down in a Cartesian sense, $\vec{g} = - g \hat{z} = - g (\sin\phi \hat{r} + \cos\phi \hat{\phi})$, because this is the most common environment for \emph{Alces alces} in the wild\footnote{It is unclear what mass distribution would produce this in a star. Oh well.}.
 
 The Moose is implemented using the volume penalization method described in e.g., \citet{hester_etal_2021}.
 We first take an image of a moose from the internet (Fig.~\ref{fig:methods}, left\footnote{Available online at \url{https://www.publicdomainpictures.net/en/view-image.php?image=317077&picture=moose}.}).
