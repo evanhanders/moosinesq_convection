@@ -10,7 +10,7 @@ We furthermore define the Rayleigh and Prantler numbers,
 \qquad
 \mathrm{Pr} = \frac{\nu}{\kappa_T},
 \end{equation}
-and the nondimensional timescale $\tilde{\gamma} = \gamma\tau$.
+and the nondimensional frequency $\tilde{\gamma} = \gamma\tau$.
 
 The nondimensional Moosinesq equations are then
 \begin{align}
@@ -25,7 +25,7 @@ The initial temperature field is linear and is hot at the bottom and cold at the
 We perturb this initial temperature field with noise whose magnitude is $10^{-3}$ and multiply that noise by $1 - \mathcal{M}$ to start the convective instability.
 
 We time-evolve equations \ref{eqn:nd_incompressible}-\ref{eqn:nd_temperature} using the Dedalus pseudospectral solver \citep[][version 3 on commit c153f2e]{burns_etal_2020} using timestepper RK443 and CFL safety factor 0.4.
-The equations are solved on a \texttt{DiskBasis} with 2048 radial and 4096 azimuthal points; this means that all variables are represented using TODO with 2048 radial coefficients and 4096 azimuthal.
+The equations are solved on a \texttt{DiskBasis} with 2048 radial and 4096 azimuthal coefficients.
 To avoid aliasing errors, we use the 3/2-dealiasing rule in all directions.
 
 The Python scripts and Jupyter notebooks used to perform the simulation and create the figures in this paper, are available online at \url{https://github.com/evanhanders/moosinesq_convection}.
